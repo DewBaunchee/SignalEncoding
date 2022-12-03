@@ -4,11 +4,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.function.IntConsumer;
 
-public class ByteBitStream extends BitStream {
+public class ByteInputBitStream extends InputBitStream {
 
     private final int count;
 
-    public ByteBitStream(int bitNumber, byte[] bytes) {
+    public ByteInputBitStream(int bitNumber, byte[] bytes) {
         super(bitNumber, new ByteArrayInputStream(bytes));
         if (bytes.length * 8 % bitNumber != 0)
             throw new IllegalArgumentException("Bytes length is not multiple of bit number");

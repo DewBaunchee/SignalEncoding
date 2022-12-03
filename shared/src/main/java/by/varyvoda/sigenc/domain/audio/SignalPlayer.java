@@ -1,43 +1,39 @@
 package by.varyvoda.sigenc.domain.audio;
 
 import by.varyvoda.sigenc.domain.signal.Signal;
-import lombok.Getter;
+import by.varyvoda.sigenc.domain.signal.encoder.SignalEncoder;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 public class SignalPlayer {
 
-    private final int sampleRate = 8000;
+    private final AudioFormat audioFormat;
 
-    private final AudioFormat audioFormat =
-        new AudioFormat(sampleRate, 16, 1, true, false);
+    private final Clip clip = AudioSystem.getClip();
 
-    @Getter
-    private Signal signal;
+    private final SignalEncoder signalEncoder = new SignalEncoder(127);
 
-    public void play() {
+    public SignalPlayer(AudioFormat audioFormat) throws LineUnavailableException {
+        this.audioFormat = audioFormat;
+    }
+
+    public void play(Signal signal, boolean repeat) {
+        if (clip.isOpen())
+            clip.close();
         try {
-            SourceDataLine line = AudioSystem.getSourceDataLine(audioFormat);
-            line.open(audioFormat);
-            line.start();
-
-            byte[] bytes = signal.toByteArray();
-            line.write(bytes, 0, bytes.length);
-            line.drain();
-            line.close();
-        } catch (LineUnavailableException e) {
+            byte[] bytes = signalEncoder.toBytes(signal);
+            AudioInputStream audioInputStream = new AudioInputStream(new ByteArrayInputStream(bytes), audioFormat, bytes.length);
+            clip.open(audioInputStream);
+            if (repeat) clip.loop(Clip.LOOP_CONTINUOUSLY);
+            clip.start();
+        } catch (LineUnavailableException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void stop() {
-
-    }
-
-    public void setSignal(Signal signal) {
-        this.signal = signal;
+        clip.close();
     }
 }

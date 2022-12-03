@@ -1,6 +1,7 @@
 package by.varyvoda.sigenc.app.view.util
 
 import by.varyvoda.sigenc.domain.signal.Signal
+import by.varyvoda.sigenc.domain.signal.spectre.Spectre
 import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
 import javafx.collections.ListChangeListener
@@ -45,27 +46,26 @@ fun <T> ObservableList<T>.listenValue(listener: ListChangeListener<T>) {
     addListener(listener)
     listener.onChanged(object : Change<T>(this) {
         override fun next(): Boolean {
-            TODO("Not yet implemented")
+            return false
         }
 
         override fun reset() {
-            TODO("Not yet implemented")
         }
 
         override fun getFrom(): Int {
-            TODO("Not yet implemented")
+            return -1
         }
 
         override fun getTo(): Int {
-            TODO("Not yet implemented")
+            return -1
         }
 
         override fun getRemoved(): MutableList<T> {
-            TODO("Not yet implemented")
+            return mutableListOf()
         }
 
         override fun getPermutation(): IntArray {
-            TODO("Not yet implemented")
+            return intArrayOf()
         }
     })
 }
@@ -75,6 +75,19 @@ fun Signal.toSeries(name: String): Series<Number, Number> {
         setName(name)
         data.addAll(this@toSeries.data().map { Data(it.i, it.value) })
     }
+}
+
+fun Spectre.toSeries(amplitudeName: String, phaseName: String): List<Series<Number, Number>> {
+    return listOf(
+        Series<Number, Number>().apply {
+            name = amplitudeName
+            data.addAll(this@toSeries.data().map { Data(it.f, it.a) })
+        },
+        Series<Number, Number>().apply {
+            name = phaseName
+            data.addAll(this@toSeries.data().map { Data(it.f, it.phase) })
+        }
+    )
 }
 
 fun Number.toFixed(count: Int): String {

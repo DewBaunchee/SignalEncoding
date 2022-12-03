@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @RequiredArgsConstructor
-public class BitStream extends InputStream {
+public class InputBitStream extends InputStream {
 
     private final int bitNumber;
 
@@ -14,7 +14,7 @@ public class BitStream extends InputStream {
 
     private byte buffer;
 
-    private int byteOffset = -1;
+    private int offset = -1;
 
     @Override
     public int read() throws IOException {
@@ -25,18 +25,18 @@ public class BitStream extends InputStream {
     }
 
     private int nextBit() throws IOException {
-        if (byteOffset == -1) {
+        if (offset == -1) {
             byte[] bytes = inputStream.readNBytes(1);
             buffer = bytes.length == 0 ? 0 : bytes[0];
-            byteOffset = Byte.SIZE - 1;
+            offset = Byte.SIZE - 1;
         }
-        return ((buffer & 0xFF) >> byteOffset--) & 1;
+        return ((buffer & 0xFF) >> offset--) & 1;
     }
 
     @Override
     public synchronized void reset() throws IOException {
         inputStream.reset();
         buffer = 0;
-        byteOffset = 0;
+        offset = 0;
     }
 }
