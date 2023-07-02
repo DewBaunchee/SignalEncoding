@@ -5,6 +5,7 @@ import by.varyvoda.sigenc.domain.signal.encoder.SignalEncoder;
 
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 
 public class SignalPlayer {
@@ -13,10 +14,11 @@ public class SignalPlayer {
 
     private final Clip clip = AudioSystem.getClip();
 
-    private final SignalEncoder signalEncoder = new SignalEncoder(127);
+    private final SignalEncoder signalEncoder;
 
-    public SignalPlayer(AudioFormat audioFormat) throws LineUnavailableException {
+    public SignalPlayer(AudioFormat audioFormat, SignalEncoder signalEncoder) throws LineUnavailableException {
         this.audioFormat = audioFormat;
+        this.signalEncoder = signalEncoder;
     }
 
     public void play(Signal signal, boolean repeat) {
@@ -25,6 +27,10 @@ public class SignalPlayer {
         try {
             byte[] bytes = signalEncoder.toBytes(signal);
             AudioInputStream audioInputStream = new AudioInputStream(new ByteArrayInputStream(bytes), audioFormat, bytes.length);
+
+            AudioSystem.write(audioInputStream, AudioFileFormat.Type.WAVE, new File("signal.wav"));
+            audioInputStream.reset();
+
             clip.open(audioInputStream);
             if (repeat) clip.loop(Clip.LOOP_CONTINUOUSLY);
             clip.start();

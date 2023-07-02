@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
@@ -36,6 +38,19 @@ public class Spectre {
 
     public List<Part> data() {
         return data;
+    }
+
+    public Spectre filter(Predicate<Part> predicate) {
+        return new Spectre(
+            frameSize,
+            data.stream()
+                .map(part -> predicate.test(part) ? part : new Part(part.f, 0.0, 0.0))
+                .collect(Collectors.toList())
+        );
+    }
+
+    public Spectre filter(List<Integer> frequencies) {
+        return filter(part -> frequencies.contains(part.f));
     }
 
     @Data

@@ -26,6 +26,10 @@ public class Signal {
         return new Signal(frameSize, data);
     }
 
+    public static Signal empty(int frameSize) {
+        return new Signal(frameSize, new ArrayList<>());
+    }
+
     public Signal concat(Signal signal) {
         List<Datum> data = new ArrayList<>(this.data.size() + signal.data.size());
         data.addAll(this.data);
@@ -39,6 +43,10 @@ public class Signal {
 
     public List<Datum> data() {
         return data;
+    }
+
+    public Datum datum(int index) {
+        return data().get(index);
     }
 
     public int size() {
@@ -63,6 +71,11 @@ public class Signal {
 
     public Signal frame(int index) {
         int startIndex = frameSize * index;
+        return Signal.of(frameSize, data.subList(startIndex, startIndex + frameSize));
+    }
+
+    public Signal frame(int index, int offset) {
+        int startIndex = frameSize * index + offset;
         return Signal.of(frameSize, data.subList(startIndex, startIndex + frameSize));
     }
 

@@ -16,7 +16,7 @@ public interface Fourier {
      Spectre spectre(int minF, int maxF, Signal signal);
 
      default Signal signal(Spectre spectre, boolean addInitial, boolean withoutPhase) {
-         int frameSize = spectre.getFrameSize();
+         int frameSize = spectre.getData().size();
          int minF = addInitial ? 1 : 0;
          int maxF = spectre.getData().size() / 2 - 2;
 
@@ -24,9 +24,7 @@ public interface Fourier {
          for (int i = 0; i < frameSize; i++) {
              double sum = addInitial ? spectre.amplitude(0) / 2 : 0.0;
 
-             for(int f = minF; f <= maxF; f++) {
-                 sum += spectre.amplitude(f) * cos(2 * PI * i * f / frameSize - (withoutPhase ? 0.0 : spectre.phase(f)));
-             }
+                 sum += spectre.amplitude(100) * cos(2 * PI * i * 100 / frameSize - (withoutPhase ? 0.0 : spectre.phase(100)));
 
              data.add(new Signal.Datum(i, sum));
          }

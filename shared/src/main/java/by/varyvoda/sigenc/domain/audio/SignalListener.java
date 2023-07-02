@@ -16,19 +16,23 @@ public class SignalListener {
     private final AudioFormat audioFormat;
     private final int delay;
     private final SignalDecoder signalDecoder = new SignalDecoder();
-    private Thread thread;
+    private boolean running = false;
 
     public void listen(Consumer<Signal> signalConsumer) throws LineUnavailableException {
         TargetDataLine microphone = AudioSystem.getTargetDataLine(audioFormat);
+        if (microphone.isOpen()) return;
+
         microphone.open(audioFormat);
         microphone.start();
-        thread = new Thread(() -> {
+
+        running = true;
+        new Thread(() -> {
             int index = 0;
             byte[] buffer = new byte[(int) (audioFormat.getSampleRate() * delay / 1000)];
 
             int read;
             int remain = buffer.length;
-            while (!thread.isInterrupted()) {
+            while (running) {
                 read = microphone.read(buffer, 0, remain);
                 if (read == 0) continue;
 
@@ -47,11 +51,12 @@ public class SignalListener {
                 );
                 index += buffer.length;
             }
-        });
-        thread.start();
+
+            microphone.close();
+        }).start();
     }
 
     public void stop() {
-        thread.interrupt();
+        running = false;
     }
 }
